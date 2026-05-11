@@ -1,23 +1,23 @@
-# Séance 3 - Monades et Fonctions d'Ordre Supérieur (Partie 1)
+# Session 3 - Monads and Higher-Order Functions (Part 1)
 
-**Durée** : 4h  
-**Date** : 5 mai 2025
+**Duration**: 4h  
+**Date**: May 5, 2025
 
-## Objectif Principal
+## Main Objective
 
-**Implémenter notre propre List !**
+**Implement our own List!**
 
-En recréant la librairie standard, vous comprendrez :
-- Comment `map`, `flatMap`, `filter`, `fold` fonctionnent "sous le capot"
-- Pourquoi ces fonctions sont si puissantes
-- Ce qu'est une Monade (sans jargon mathématique)
+By recreating the standard library, you will understand:
+- How `map`, `flatMap`, `filter`, `fold` work "under the hood"
+- Why these functions are so powerful
+- What a Monad is (without mathematical jargon)
 
-## Rappel : Séances précédentes
+## Recap: Previous Sessions
 
-- **Séance 1** : Bases Scala, récursion, pattern matching simple
-- **Séance 2** : Case classes, sealed traits, enums, pattern matching avancé
+- **Session 1**: Scala basics, recursion, simple pattern matching
+- **Session 2**: Case classes, sealed traits, enums, advanced pattern matching
 
-## Mise en route
+## Getting Started
 
 ```bash
 cd seance-3
@@ -25,15 +25,15 @@ sbt compile
 sbt test
 ```
 
-## Structure de MyList
+## Structure of MyList
 
 ```scala
 enum MyList[+A]:
-  case MyNil                           // Liste vide
-  case MyCons(head: A, tail: MyList[A]) // Élément + reste
+  case MyNil                           // Empty list
+  case MyCons(head: A, tail: MyList[A]) // Element + rest
 ```
 
-**Exemple visuel :**
+**Visual Example:**
 ```
 MyList(1, 2, 3) = MyCons(1, MyCons(2, MyCons(3, MyNil)))
 
@@ -42,87 +42,87 @@ MyList(1, 2, 3) = MyCons(1, MyCons(2, MyCons(3, MyNil)))
 └───┴───┘   └───┴───┘   └───┴───┘   └─────┘
 ```
 
-## Organisation de la séance
+## Session Organization
 
-### Partie 1 : Opérations de Base (45 min)
+### Part 1: Basic Operations (45 min)
 
-**Concepts :** Structure récursive, pattern matching
+**Concepts:** Recursive structure, pattern matching
 
-Le pattern est toujours le même :
+The pattern is always the same:
 
 ```scala
 def operation: Result = this match
-  case MyNil => ???        // Cas de base : que retourner pour une liste vide ?
-  case MyCons(h, t) => ??? // Cas récursif : utiliser h (head) et t.operation
+  case MyNil => ???        // Base case: what to return for an empty list?
+  case MyCons(h, t) => ??? // Recursive case: use h (head) and t.operation
 ```
 
-Par exemple, pour savoir si tous les éléments sont positifs :
+For example, to check if all elements are positive:
 
 ```scala
-def tousPositifs: Boolean = this match
-  case MyNil => true                      // Liste vide = tous positifs (par défaut)
-  case MyCons(h, t) => h > 0 && t.tousPositifs  // h positif ET le reste aussi
+def allPositive: Boolean = this match
+  case MyNil => true                      // Empty list = all positive (by default)
+  case MyCons(h, t) => h > 0 && t.allPositive  // h positive AND the rest too
 ```
 
-**Exercices 1.1 - 1.6** : `isEmpty`, `length`, `headOption`, `lastOption`, `++`, `reverse`
+**Exercises 1.1 - 1.6**: `isEmpty`, `length`, `headOption`, `lastOption`, `++`, `reverse`
 
-### Partie 2 : map - Transformer (45 min)
+### Part 2: map - Transform (45 min)
 
-**Le concept clé :**
+**The key concept:**
 
-`map` applique une fonction à **chaque élément** sans changer la structure.
+`map` applies a function to **each element** without changing the structure.
 
 ```
 [1, 2, 3].map(x => x * 2) = [2, 4, 6]
      │          │               │
      └──────────┼───────────────┘
-         La structure reste identique !
+         The structure remains identical!
 ```
 
-**Signature :**
+**Signature:**
 ```scala
 def myMap[B](f: A => B): MyList[B]
 ```
 
-**À retenir :**
-- Si la liste a 5 éléments, `myMap` retourne 5 éléments
-- Le type peut changer (`MyList[Int]` → `MyList[String]`)
-- L'ordre est préservé
+**Remember:**
+- If the list has 5 elements, `myMap` returns 5 elements
+- The type can change (`MyList[Int]` → `MyList[String]`)
+- Order is preserved
 
-**Exercices 2.1 - 2.3**
+**Exercises 2.1 - 2.3**
 
-### Partie 3 : filter - Sélectionner (30 min)
+### Part 3: filter - Select (30 min)
 
-`filter` garde uniquement les éléments qui satisfont un prédicat.
+`filter` keeps only elements that satisfy a predicate.
 
 ```
 [1, 2, 3, 4].filter(x => x % 2 == 0) = [2, 4]
 ```
 
-**Exercices 3.1 - 3.3**
+**Exercises 3.1 - 3.3**
 
-### Partie 4 : flatMap - La Clé des Monades ! (60 min)
+### Part 4: flatMap - The Key to Monads! (60 min)
 
-**C'est LE concept central !**
+**This is THE central concept!**
 
-`flatMap` fait deux choses :
-1. Applique une fonction qui retourne une liste
-2. "Aplatit" le résultat
+`flatMap` does two things:
+1. Applies a function that returns a list
+2. "Flattens" the result
 
 ```
 [1, 2].flatMap(x => [x, x*10])
 
-Étape 1 - Appliquer:
+Step 1 - Apply:
   1 → [1, 10]
   2 → [2, 20]
   
-Résultat intermédiaire: [[1, 10], [2, 20]]
+Intermediate result: [[1, 10], [2, 20]]
 
-Étape 2 - Aplatir:
+Step 2 - Flatten:
   [1, 10, 2, 20]
 ```
 
-**Différence map vs flatMap :**
+**Difference map vs flatMap:**
 
 ```scala
 // map: A => B
@@ -132,100 +132,100 @@ Résultat intermédiaire: [[1, 10], [2, 20]]
 [1, 2].flatMap(x => [x, x])   // [1, 1, 2, 2]
 ```
 
-**Pourquoi c'est puissant ?**
+**Why is it powerful?**
 
-`flatMap` permet de "chaîner" des opérations qui peuvent produire plusieurs résultats :
+`flatMap` allows you to "chain" operations that can produce multiple results:
 
 ```scala
-// Toutes les paires (x, y) où x vient de [1,2] et y vient de [3,4]
+// All pairs (x, y) where x comes from [1,2] and y comes from [3,4]
 MyList(1, 2).myFlatMap(x =>
   MyList(3, 4).myMap(y =>
     (x, y)
   )
 )
-// Résultat: [(1,3), (1,4), (2,3), (2,4)]
+// Result: [(1,3), (1,4), (2,3), (2,4)]
 ```
 
-**Exercices 4.1 - 4.4**
+**Exercises 4.1 - 4.4**
 
-### Partie 5 : fold - L'Opération Ultime (60 min)
+### Part 5: fold - The Ultimate Operation (60 min)
 
-`fold` "réduit" une liste à une seule valeur.
+`fold` "reduces" a list to a single value.
 
-**foldLeft** parcourt de gauche à droite :
+**foldLeft** traverses from left to right:
 ```
 [1, 2, 3].foldLeft(0)(_ + _)
 = ((0 + 1) + 2) + 3
 = 6
 ```
 
-**foldRight** parcourt de droite à gauche :
+**foldRight** traverses from right to left:
 ```
 [1, 2, 3].foldRight(0)(_ + _)
 = 1 + (2 + (3 + 0))
 = 6
 ```
 
-**fold est TRÈS puissant** - on peut implémenter map, filter, flatMap avec fold !
+**fold is VERY powerful** - you can implement map, filter, flatMap with fold!
 
-**Exercices 5.1 - 5.6**
+**Exercises 5.1 - 5.6**
 
-### Partie 6 : Autres opérations (30 min)
+### Part 6: Other Operations (30 min)
 
-**Exercices 6.1 - 6.3** : `take`, `drop`, `zipWith`
+**Exercises 6.1 - 6.3**: `take`, `drop`, `zipWith`
 
-## Concepts Clés à Retenir
+## Key Concepts to Remember
 
-### La Signature Révèle Tout
+### The Signature Reveals Everything
 
-| Fonction | Signature | Ce qu'elle fait |
-|----------|-----------|-----------------|
-| `map` | `(A => B) => List[B]` | Transforme chaque élément |
-| `filter` | `(A => Boolean) => List[A]` | Garde si true |
-| `flatMap` | `(A => List[B]) => List[B]` | Transforme + aplatit |
-| `foldLeft` | `(B)((B, A) => B) => B` | Réduit à une valeur |
+| Function | Signature | What it does |
+|----------|-----------|--------------|
+| `map` | `(A => B) => List[B]` | Transforms each element |
+| `filter` | `(A => Boolean) => List[A]` | Keeps if true |
+| `flatMap` | `(A => List[B]) => List[B]` | Transforms + flattens |
+| `foldLeft` | `(B)((B, A) => B) => B` | Reduces to a value |
 
-### Map ne Change Jamais la Structure !
+### Map Never Changes the Structure!
 
 ```scala
-List(1, 2, 3).map(???)      // Toujours 3 éléments
-Some(5).map(???)            // Toujours Some
-None.map(???)               // Toujours None
-Right(x).map(???)           // Toujours Right
+List(1, 2, 3).map(???)      // Always 3 elements
+Some(5).map(???)            // Always Some
+None.map(???)               // Always None
+Right(x).map(???)           // Always Right
 ```
 
-C'est pourquoi on dit que `map` modifie le **contenu** mais pas le **contenant**.
+That's why we say `map` modifies the **content** but not the **container**.
 
-### FlatMap Permet de "Sortir" du Contenant
+### FlatMap Allows You to "Exit" the Container
 
 ```scala
 Some(5).flatMap(x => if x > 0 then Some(x) else None)
-// Peut retourner Some ou None !
+// Can return Some or None!
 
 List(1, 2).flatMap(x => List(x, x))
-// Peut changer la taille !
+// Can change the size!
 ```
 
-## Pourquoi "Monade" ?
+## Why "Monad"?
 
-Une **Monade** est simplement un type qui a :
-1. Une façon de créer une instance (`pure` ou constructeur)
-2. Une fonction `flatMap`
+A **Monad** is simply a type that has:
+1. A way to create an instance (`pure` or constructor)
+2. A `flatMap` function
 
-`List`, `Option`, `Either`, `Try` sont toutes des monades !
+`List`, `Option`, `Either`, `Try` are all monads!
 
-La prochaine séance, nous implémenterons `MyOption`, `MyEither`, `MyTry` pour solidifier ces concepts.
+In the next session, we will implement `MyOption`, `MyEither`, `MyTry` to solidify these concepts.
 
-## Commandes utiles
+## Useful Commands
 
 ```bash
-sbt test                    # Tous les tests
-sbt "testOnly *1.1*"        # Test spécifique
-sbt ~test                   # Mode watch
+sbt test                    # All tests
+sbt "testOnly *1.1*"        # Specific test
+sbt ~test                   # Watch mode
 sbt console                 # REPL
 ```
 
-Dans le REPL :
+In the REPL:
 ```scala
 import seance3.*
 import MyList.*
@@ -236,22 +236,22 @@ l.myFilter(_ > 1)
 l.myFlatMap(x => MyList(x, x))
 ```
 
-## Erreurs Courantes
+## Common Errors
 
 **"match may not be exhaustive"**  
-→ Assurez-vous de couvrir `MyNil` ET `MyCons`
+→ Make sure to cover `MyNil` AND `MyCons`
 
-**Stack overflow sur grandes listes**  
-→ Normal pour récursion non tail-recursive. On verra les optimisations plus tard.
+**Stack overflow on large lists**  
+→ Normal for non tail-recursive recursion. We'll see optimizations later.
 
-**Type mismatch avec MyNil**  
-→ Parfois il faut annoter : `MyNil: MyList[Int]`
+**Type mismatch with MyNil**  
+→ Sometimes you need to annotate: `MyNil: MyList[Int]`
 
-## Ressources
+## Resources
 
-- [Functional Programming in Scala](https://www.manning.com/books/functional-programming-in-scala) - Chapitre 3
+- [Functional Programming in Scala](https://www.manning.com/books/functional-programming-in-scala) - Chapter 3
 - [Scala Documentation - Collections](https://docs.scala-lang.org/overviews/collections-2.13/introduction.html)
 
 ---
 
-*FP with Scala - V2 - Séance 3*
+*FP with Scala - V2 - Session 3*

@@ -1,292 +1,296 @@
 package seance3
 
 /**
- * Séance 3 - Monades et Fonctions d'Ordre Supérieur (Partie 1)
+ * Session 3 - Monads and Higher-Order Functions (Part 1)
  * 
- * OBJECTIF PRINCIPAL : Implémenter notre propre List !
+ * MAIN OBJECTIVE: Implement our own List!
  * 
- * En recréant la librairie standard, vous comprendrez :
- * - Comment fonctionnent map, flatMap, filter, fold "sous le capot"
- * - Pourquoi ces fonctions sont si puissantes
- * - Ce qu'est une Monade (sans le jargon mathématique)
+ * By recreating the standard library, you will understand:
+ * - How map, flatMap, filter, fold work "under the hood"
+ * - Why these functions are so powerful
+ * - What a Monad is (without the mathematical jargon)
  * 
- * Instructions :
- * 1. Complétez les fonctions marquées avec ???
- * 2. N'utilisez PAS de var, uniquement val
- * 3. Utilisez la récursion (pas de boucles)
- * 4. Lancez les tests avec: sbt test
+ * Instructions:
+ * 1. Complete the functions marked with ???
+ * 2. Do NOT use var, only val
+ * 3. Use recursion (no loops)
+ * 4. Run tests with: sbt test
  */
 
 /**
- * Notre propre implémentation de List !
+ * Our own implementation of List!
  * 
- * Une liste est soit :
- * - Vide (MyNil)
- * - Un élément suivi d'une autre liste (MyCons)
+ * A list is either:
+ * - Empty (MyNil)
+ * - An element followed by another list (MyCons)
  * 
- * Exemple: MyCons(1, MyCons(2, MyCons(3, MyNil))) représente [1, 2, 3]
+ * Example: MyCons(1, MyCons(2, MyCons(3, MyNil))) represents [1, 2, 3]
  */
 enum MyList[+A]:
   case MyNil
   case MyCons(head: A, tail: MyList[A])
   
   // ============================================
-  // Partie 1: Opérations de Base
+  // Part 1: Basic Operations
   // ============================================
   
   /**
-   * Exercice 1.1: isEmpty
-   * Retourne true si la liste est vide (MyNil).
+   * Exercise 1.1: isEmpty
+   * Returns true if the list is empty (MyNil).
    * 
-   * Exemple: MyNil.isEmpty == true
+   * Example: MyNil.isEmpty == true
    *          MyCons(1, MyNil).isEmpty == false
    */
-  def isEmpty: Boolean =
-    ???
-  
+  def isEmpty: Boolean = this match
+    case MyNil => true
+    case _ => false
+
   /**
-   * Exercice 1.2: length
-   * Retourne le nombre d'éléments dans la liste.
-   * Utilisez la récursion !
+   * Exercise 1.2: length
+   * Returns the number of elements in the list.
+   * Use recursion!
    * 
-   * Exemple: MyNil.length == 0
+   * Example: MyNil.length == 0
    *          MyCons(1, MyCons(2, MyNil)).length == 2
    */
-  def length: Int =
-    ???
+  def length: Int = this match
+    case MyNil => 0
+    case MyCons(head, tail) => 1 + tail.length
   
   /**
-   * Exercice 1.3: headOption
-   * Retourne Some(premier élément) ou None si la liste est vide.
+   * Exercise 1.3: headOption
+   * Returns Some(first element) or None if the list is empty.
    * 
-   * Exemple: MyCons(1, MyCons(2, MyNil)).headOption == Some(1)
+   * Example: MyCons(1, MyCons(2, MyNil)).headOption == Some(1)
    *          MyNil.headOption == None
    */
   def headOption: Option[A] =
     ???
   
   /**
-   * Exercice 1.4: lastOption
-   * Retourne Some(dernier élément) ou None si la liste est vide.
-   * Utilisez la récursion !
+   * Exercise 1.4: lastOption
+   * Returns Some(last element) or None if the list is empty.
+   * Use recursion!
    * 
-   * Exemple: MyCons(1, MyCons(2, MyCons(3, MyNil))).lastOption == Some(3)
+   * Example: MyCons(1, MyCons(2, MyCons(3, MyNil))).lastOption == Some(3)
    */
   def lastOption: Option[A] =
     ???
   
   /**
-   * Exercice 1.5: append (++)
-   * Concatène deux listes.
+   * Exercise 1.5: append (++)
+   * Concatenates two lists.
    * 
-   * Exemple: MyCons(1, MyCons(2, MyNil)) ++ MyCons(3, MyNil) 
+   * Example: MyCons(1, MyCons(2, MyNil)) ++ MyCons(3, MyNil) 
    *          == MyCons(1, MyCons(2, MyCons(3, MyNil)))
    */
   def ++[B >: A](other: MyList[B]): MyList[B] =
     ???
   
   /**
-   * Exercice 1.6: reverse
-   * Inverse l'ordre des éléments.
-   * Indice: utilisez un accumulateur ou ++
+   * Exercise 1.6: reverse
+   * Reverses the order of elements.
+   * Hint: use an accumulator or ++
    * 
-   * Exemple: MyCons(1, MyCons(2, MyCons(3, MyNil))).reverse
+   * Example: MyCons(1, MyCons(2, MyCons(3, MyNil))).reverse
    *          == MyCons(3, MyCons(2, MyCons(1, MyNil)))
    */
-  def reverse: MyList[A] =
-    ???
-  
-  
+  List(1, 2 ,3)
+  def reverse: MyList[A] = this match
+    case MyNil => MyNil
+    case MyCons(head, tail) => tail.reverse ++ MyCons(head, MyNil)
+
+
   // ============================================
-  // Partie 2: map - Transformer chaque élément
+  // Part 2: map - Transform each element
   // ============================================
   
   /**
-   * Exercice 2.1: myMap
-   * Applique une fonction f à CHAQUE élément de la liste.
+   * Exercise 2.1: myMap
+   * Applies a function f to EACH element of the list.
    * 
-   * IMPORTANT: myMap ne change JAMAIS la structure de la liste !
-   * - Si la liste a 3 éléments, le résultat a 3 éléments
-   * - MyNil reste MyNil
+   * IMPORTANT: myMap NEVER changes the structure of the list!
+   * - If the list has 3 elements, the result has 3 elements
+   * - MyNil stays MyNil
    * 
-   * Exemple: MyCons(1, MyCons(2, MyCons(3, MyNil))).myMap(x => x * 2)
+   * Example: MyCons(1, MyCons(2, MyCons(3, MyNil))).myMap(x => x * 2)
    *          == MyCons(2, MyCons(4, MyCons(6, MyNil)))
    * 
-   * @param f la fonction de transformation A => B
-   * @return une nouvelle liste avec les éléments transformés
+   * @param f the transformation function A => B
+   * @return a new list with the transformed elements
    */
   def myMap[B](f: A => B): MyList[B] =
     ???
   
   /**
-   * Exercice 2.2: Utiliser myMap
-   * Utilisez myMap pour doubler tous les éléments d'une liste d'entiers.
-   * (Cette fonction est dans l'objet companion ci-dessous)
+   * Exercise 2.2: Using myMap
+   * Use myMap to double all elements of an integer list.
+   * (This function is in the companion object below)
    */
   
   
   // ============================================
-  // Partie 3: filter - Garder certains éléments
+  // Part 3: filter - Keep certain elements
   // ============================================
   
   /**
-   * Exercice 3.1: myFilter
-   * Garde uniquement les éléments qui satisfont le prédicat p.
+   * Exercise 3.1: myFilter
+   * Keeps only elements that satisfy the predicate p.
    * 
-   * Exemple: MyCons(1, MyCons(2, MyCons(3, MyCons(4, MyNil)))).myFilter(x => x % 2 == 0)
+   * Example: MyCons(1, MyCons(2, MyCons(3, MyCons(4, MyNil)))).myFilter(x => x % 2 == 0)
    *          == MyCons(2, MyCons(4, MyNil))
    * 
-   * @param p le prédicat (fonction qui retourne Boolean)
-   * @return une nouvelle liste avec uniquement les éléments où p(élément) == true
+   * @param p the predicate (function that returns Boolean)
+   * @return a new list with only elements where p(element) == true
    */
   def myFilter(p: A => Boolean): MyList[A] =
     ???
   
   /**
-   * Exercice 3.2: myFilterNot
-   * L'inverse de filter : garde les éléments où p(élément) == false.
-   * Indice: réutilisez myFilter !
+   * Exercise 3.2: myFilterNot
+   * The inverse of filter: keeps elements where p(element) == false.
+   * Hint: reuse myFilter!
    */
   def myFilterNot(p: A => Boolean): MyList[A] =
     ???
   
   
   // ============================================
-  // Partie 4: flatMap - La clé des Monades !
+  // Part 4: flatMap - The key to Monads!
   // ============================================
   
   /**
-   * Exercice 4.1: myFlatMap
+   * Exercise 4.1: myFlatMap
    * 
-   * flatMap est LA fonction centrale des monades.
-   * Elle fait deux choses :
-   * 1. Applique f à chaque élément (comme map)
-   * 2. "Aplatit" le résultat (concat toutes les listes en une seule)
+   * flatMap is THE central function of monads.
+   * It does two things:
+   * 1. Applies f to each element (like map)
+   * 2. "Flattens" the result (concatenates all lists into one)
    * 
-   * Différence avec map:
+   * Difference with map:
    * - map(f: A => B) : List[A] => List[B]
    * - flatMap(f: A => List[B]) : List[A] => List[B]
    * 
-   * Exemple:
+   * Example:
    *   MyCons(1, MyCons(2, MyNil)).myFlatMap(x => MyCons(x, MyCons(x * 10, MyNil)))
    *   == MyCons(1, MyCons(10, MyCons(2, MyCons(20, MyNil))))
    * 
-   * Étapes pour [1, 2].flatMap(x => [x, x*10]):
+   * Steps for [1, 2].flatMap(x => [x, x*10]):
    *   1 -> [1, 10]
    *   2 -> [2, 20]
-   *   Résultat: [1, 10] ++ [2, 20] = [1, 10, 2, 20]
+   *   Result: [1, 10] ++ [2, 20] = [1, 10, 2, 20]
    */
   def myFlatMap[B](f: A => MyList[B]): MyList[B] =
     ???
   
   /**
-   * Exercice 4.2: myMap en termes de myFlatMap
-   * On peut implémenter map en utilisant flatMap !
-   * Cela montre que flatMap est plus "puissant" que map.
+   * Exercise 4.2: myMap in terms of myFlatMap
+   * You can implement map using flatMap!
+   * This shows that flatMap is more "powerful" than map.
    * 
-   * Indice: f: A => B, il faut retourner une liste d'un seul élément
+   * Hint: f: A => B, you need to return a list with a single element
    */
   def myMapViaFlatMap[B](f: A => B): MyList[B] =
     ???
   
   
   // ============================================
-  // Partie 5: fold - L'opération la plus puissante
+  // Part 5: fold - The most powerful operation
   // ============================================
   
   /**
-   * Exercice 5.1: myFoldLeft
+   * Exercise 5.1: myFoldLeft
    * 
-   * fold "réduit" une liste à une seule valeur en appliquant
-   * une fonction de combinaison élément par élément.
+   * fold "reduces" a list to a single value by applying
+   * a combining function element by element.
    * 
-   * foldLeft parcourt de gauche à droite:
+   * foldLeft traverses from left to right:
    *   [1, 2, 3].foldLeft(0)(_ + _)
    *   = ((0 + 1) + 2) + 3
    *   = 6
    * 
-   * @param z la valeur initiale (ou "zéro")
-   * @param f la fonction de combinaison (accumulateur, élément) => nouvel accumulateur
+   * @param z the initial value (or "zero")
+   * @param f the combining function (accumulator, element) => new accumulator
    * 
-   * Exemple: MyCons(1, MyCons(2, MyCons(3, MyNil))).myFoldLeft(0)((acc, x) => acc + x) == 6
+   * Example: MyCons(1, MyCons(2, MyCons(3, MyNil))).myFoldLeft(0)((acc, x) => acc + x) == 6
    */
   def myFoldLeft[B](z: B)(f: (B, A) => B): B =
     ???
   
   /**
-   * Exercice 5.2: myFoldRight
+   * Exercise 5.2: myFoldRight
    * 
-   * foldRight parcourt de droite à gauche:
+   * foldRight traverses from right to left:
    *   [1, 2, 3].foldRight(0)(_ + _)
    *   = 1 + (2 + (3 + 0))
    *   = 6
    * 
-   * Note: L'ordre des paramètres de f est inversé !
+   * Note: The order of parameters of f is reversed!
    * 
-   * @param z la valeur initiale
-   * @param f la fonction (élément, accumulateur) => nouvel accumulateur
+   * @param z the initial value
+   * @param f the function (element, accumulator) => new accumulator
    */
   def myFoldRight[B](z: B)(f: (A, B) => B): B =
     ???
   
-  // Les méthodes sum et product sont définies comme extensions ci-dessous
+  // The sum and product methods are defined as extensions below
   
   /**
-   * Exercice 5.5: myForall
-   * Retourne true si TOUS les éléments satisfont le prédicat.
-   * Une liste vide retourne true.
+   * Exercise 5.5: myForall
+   * Returns true if ALL elements satisfy the predicate.
+   * An empty list returns true.
    * 
-   * Exemple: MyCons(2, MyCons(4, MyNil)).myForall(x => x % 2 == 0) == true
+   * Example: MyCons(2, MyCons(4, MyNil)).myForall(x => x % 2 == 0) == true
    */
   def myForall(p: A => Boolean): Boolean =
     ???
   
   /**
-   * Exercice 5.6: myExists
-   * Retourne true si AU MOINS UN élément satisfait le prédicat.
-   * Une liste vide retourne false.
+   * Exercise 5.6: myExists
+   * Returns true if AT LEAST ONE element satisfies the predicate.
+   * An empty list returns false.
    */
   def myExists(p: A => Boolean): Boolean =
     ???
   
   
   // ============================================
-  // Partie 6: Autres opérations utiles
+  // Part 6: Other useful operations
   // ============================================
   
   /**
-   * Exercice 6.1: take
-   * Prend les n premiers éléments.
+   * Exercise 6.1: take
+   * Takes the first n elements.
    * 
-   * Exemple: MyCons(1, MyCons(2, MyCons(3, MyNil))).take(2) 
+   * Example: MyCons(1, MyCons(2, MyCons(3, MyNil))).take(2) 
    *          == MyCons(1, MyCons(2, MyNil))
    */
   def take(n: Int): MyList[A] =
     ???
   
   /**
-   * Exercice 6.2: drop
-   * Supprime les n premiers éléments.
+   * Exercise 6.2: drop
+   * Removes the first n elements.
    * 
-   * Exemple: MyCons(1, MyCons(2, MyCons(3, MyNil))).drop(2) 
+   * Example: MyCons(1, MyCons(2, MyCons(3, MyNil))).drop(2) 
    *          == MyCons(3, MyNil)
    */
   def drop(n: Int): MyList[A] =
     ???
   
   /**
-   * Exercice 6.3: zipWith
-   * Combine deux listes élément par élément avec une fonction.
-   * S'arrête quand une des listes est vide.
+   * Exercise 6.3: zipWith
+   * Combines two lists element by element with a function.
+   * Stops when one of the lists is empty.
    * 
-   * Exemple: MyCons(1, MyCons(2, MyNil)).zipWith(MyCons(10, MyCons(20, MyNil)))(_ + _)
+   * Example: MyCons(1, MyCons(2, MyNil)).zipWith(MyCons(10, MyCons(20, MyNil)))(_ + _)
    *          == MyCons(11, MyCons(22, MyNil))
    */
   def zipWith[B, C](other: MyList[B])(f: (A, B) => C): MyList[C] =
     ???
   
   /**
-   * Méthode utilitaire pour affichage
+   * Utility method for display
    */
   override def toString: String = 
     def loop(list: MyList[A], acc: String): String = list match
@@ -298,100 +302,100 @@ end MyList
 
 
 /**
- * Objet companion avec des fonctions utilitaires
+ * Companion object with utility functions
  */
 object MyList:
   import MyList.*
   
   /**
-   * Crée une MyList à partir d'éléments variadiques.
-   * Déjà implémenté pour vous !
+   * Creates a MyList from variadic elements.
+   * Already implemented for you!
    * 
-   * Exemple: MyList(1, 2, 3) == MyCons(1, MyCons(2, MyCons(3, MyNil)))
+   * Example: MyList(1, 2, 3) == MyCons(1, MyCons(2, MyCons(3, MyNil)))
    */
   def apply[A](elements: A*): MyList[A] =
     if elements.isEmpty then MyNil
     else MyCons(elements.head, apply(elements.tail*))
   
   /**
-   * Exercice 2.2: doublerTous
-   * Utilisez myMap pour doubler tous les éléments.
+   * Exercise 2.2: doubleAll
+   * Use myMap to double all elements.
    */
-  def doublerTous(liste: MyList[Int]): MyList[Int] =
+  def doubleAll(list: MyList[Int]): MyList[Int] =
     ???
   
   /**
-   * Exercice 2.3: convertirEnStrings
-   * Utilisez myMap pour convertir tous les entiers en String.
+   * Exercise 2.3: convertToStrings
+   * Use myMap to convert all integers to String.
    */
-  def convertirEnStrings(liste: MyList[Int]): MyList[String] =
+  def convertToStrings(list: MyList[Int]): MyList[String] =
     ???
   
   /**
-   * Exercice 3.3: garderPositifs
-   * Utilisez myFilter pour garder uniquement les nombres positifs.
+   * Exercise 3.3: keepPositives
+   * Use myFilter to keep only positive numbers.
    */
-  def garderPositifs(liste: MyList[Int]): MyList[Int] =
+  def keepPositives(list: MyList[Int]): MyList[Int] =
     ???
   
   /**
-   * Exercice 4.3: dupliquerChaque
-   * Utilisez myFlatMap pour dupliquer chaque élément.
+   * Exercise 4.3: duplicateEach
+   * Use myFlatMap to duplicate each element.
    * [1, 2, 3] -> [1, 1, 2, 2, 3, 3]
    */
-  def dupliquerChaque[A](liste: MyList[A]): MyList[A] =
+  def duplicateEach[A](list: MyList[A]): MyList[A] =
     ???
   
   /**
-   * Exercice 4.4: rangeMyList
-   * Utilisez myFlatMap pour transformer [1, 3] en [0, 1, 0, 1, 2, 3]
-   * Chaque n devient la liste [0, 1, ..., n]
+   * Exercise 4.4: expandRange
+   * Use myFlatMap to transform [1, 3] into [0, 1, 0, 1, 2, 3]
+   * Each n becomes the list [0, 1, ..., n]
    */
-  def expandRange(liste: MyList[Int]): MyList[Int] =
+  def expandRange(list: MyList[Int]): MyList[Int] =
     ???
   
-  // Fonction helper pour créer une range
+  // Helper function to create a range
   def range(start: Int, end: Int): MyList[Int] =
     if start > end then MyNil
     else MyCons(start, range(start + 1, end))
   
   /**
-   * Exercice 5.3: sum
-   * Calculez la somme des éléments d'une liste d'entiers.
-   * Utilisez myFoldLeft.
+   * Exercise 5.3: sum
+   * Calculate the sum of elements in an integer list.
+   * Use myFoldLeft.
    */
-  def sum(liste: MyList[Int]): Int =
+  def sum(list: MyList[Int]): Int =
     ???
   
   /**
-   * Exercice 5.4: product
-   * Calculez le produit des éléments d'une liste d'entiers.
+   * Exercise 5.4: product
+   * Calculate the product of elements in an integer list.
    */
-  def product(liste: MyList[Int]): Int =
+  def product(list: MyList[Int]): Int =
     ???
 
 
 // ============================================
-// BONUS: Exercices Avancés
+// BONUS: Advanced Exercises
 // ============================================
 
 object Bonus:
   import MyList.*
   
   /**
-   * BONUS 1: Implémenter filter via foldRight
+   * BONUS 1: Implement filter via foldRight
    */
-  def filterViaFold[A](liste: MyList[A])(p: A => Boolean): MyList[A] =
+  def filterViaFold[A](list: MyList[A])(p: A => Boolean): MyList[A] =
     ???
   
   /**
-   * BONUS 2: Implémenter map via foldRight
+   * BONUS 2: Implement map via foldRight
    */
-  def mapViaFold[A, B](liste: MyList[A])(f: A => B): MyList[B] =
+  def mapViaFold[A, B](list: MyList[A])(f: A => B): MyList[B] =
     ???
   
   /**
-   * BONUS 3: Implémenter flatMap via foldRight
+   * BONUS 3: Implement flatMap via foldRight
    */
-  def flatMapViaFold[A, B](liste: MyList[A])(f: A => MyList[B]): MyList[B] =
+  def flatMapViaFold[A, B](list: MyList[A])(f: A => MyList[B]): MyList[B] =
     ???

@@ -5,14 +5,14 @@ import MyList.*
 
 class ExercicesSpec extends FunSuite:
   
-  // Listes de test
+  // Test lists
   val empty: MyList[Int] = MyNil
   val one: MyList[Int] = MyCons(1, MyNil)
   val three: MyList[Int] = MyCons(1, MyCons(2, MyCons(3, MyNil)))
   val five: MyList[Int] = MyList(1, 2, 3, 4, 5)
   
   // ============================================
-  // Tests Partie 1: Opérations de Base
+  // Tests Part 1: Basic Operations
   // ============================================
   
   test("1.1 - isEmpty"):
@@ -51,28 +51,28 @@ class ExercicesSpec extends FunSuite:
   
   
   // ============================================
-  // Tests Partie 2: map
+  // Tests Part 2: map
   // ============================================
   
-  test("2.1 - myMap: transforme les éléments"):
+  test("2.1 - myMap: transforms elements"):
     assertEquals(empty.myMap(_ * 2), empty)
     assertEquals(one.myMap(_ * 2), MyCons(2, MyNil))
     assertEquals(three.myMap(_ * 2), MyList(2, 4, 6))
     assertEquals(three.myMap(_.toString), MyList("1", "2", "3"))
   
-  test("2.2 - doublerTous"):
-    assertEquals(MyList.doublerTous(empty), empty)
-    assertEquals(MyList.doublerTous(three), MyList(2, 4, 6))
+  test("2.2 - doubleAll"):
+    assertEquals(MyList.doubleAll(empty), empty)
+    assertEquals(MyList.doubleAll(three), MyList(2, 4, 6))
   
-  test("2.3 - convertirEnStrings"):
-    assertEquals(MyList.convertirEnStrings(three), MyList("1", "2", "3"))
+  test("2.3 - convertToStrings"):
+    assertEquals(MyList.convertToStrings(three), MyList("1", "2", "3"))
   
   
   // ============================================
-  // Tests Partie 3: filter
+  // Tests Part 3: filter
   // ============================================
   
-  test("3.1 - myFilter: garde les éléments correspondants"):
+  test("3.1 - myFilter: keeps matching elements"):
     assertEquals(empty.myFilter(_ > 0), empty)
     assertEquals(three.myFilter(_ > 1), MyList(2, 3))
     assertEquals(five.myFilter(_ % 2 == 0), MyList(2, 4))
@@ -82,16 +82,16 @@ class ExercicesSpec extends FunSuite:
     assertEquals(three.myFilterNot(_ > 1), MyList(1))
     assertEquals(five.myFilterNot(_ % 2 == 0), MyList(1, 3, 5))
   
-  test("3.3 - garderPositifs"):
-    assertEquals(MyList.garderPositifs(MyList(-1, 2, -3, 4)), MyList(2, 4))
-    assertEquals(MyList.garderPositifs(MyList(-1, -2)), empty)
+  test("3.3 - keepPositives"):
+    assertEquals(MyList.keepPositives(MyList(-1, 2, -3, 4)), MyList(2, 4))
+    assertEquals(MyList.keepPositives(MyList(-1, -2)), empty)
   
   
   // ============================================
-  // Tests Partie 4: flatMap
+  // Tests Part 4: flatMap
   // ============================================
   
-  test("4.1 - myFlatMap: applique et aplatit"):
+  test("4.1 - myFlatMap: applies and flattens"):
     assertEquals(empty.myFlatMap(x => MyList(x, x)), empty)
     assertEquals(one.myFlatMap(x => MyList(x, x * 10)), MyList(1, 10))
     assertEquals(
@@ -103,9 +103,9 @@ class ExercicesSpec extends FunSuite:
     assertEquals(three.myMapViaFlatMap(_ * 2), MyList(2, 4, 6))
     assertEquals(three.myMapViaFlatMap(_.toString), MyList("1", "2", "3"))
   
-  test("4.3 - dupliquerChaque"):
-    assertEquals(MyList.dupliquerChaque(three), MyList(1, 1, 2, 2, 3, 3))
-    assertEquals(MyList.dupliquerChaque(MyList("a", "b")), MyList("a", "a", "b", "b"))
+  test("4.3 - duplicateEach"):
+    assertEquals(MyList.duplicateEach(three), MyList(1, 1, 2, 2, 3, 3))
+    assertEquals(MyList.duplicateEach(MyList("a", "b")), MyList("a", "a", "b", "b"))
   
   test("4.4 - expandRange"):
     assertEquals(MyList.expandRange(MyList(2)), MyList(0, 1, 2))
@@ -113,7 +113,7 @@ class ExercicesSpec extends FunSuite:
   
   
   // ============================================
-  // Tests Partie 5: fold
+  // Tests Part 5: fold
   // ============================================
   
   test("5.1 - myFoldLeft"):
@@ -151,7 +151,7 @@ class ExercicesSpec extends FunSuite:
   
   
   // ============================================
-  // Tests Partie 6: Autres opérations
+  // Tests Part 6: Other operations
   // ============================================
   
   test("6.1 - take"):
